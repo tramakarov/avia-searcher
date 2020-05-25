@@ -13,6 +13,7 @@ datetime_regex = re.compile(
 
 
 def stringify_duration(duration):
+    """Converts seconds to Nh Nmin string"""
     duration /= 60
     hours = 0
     while duration >= 60:
@@ -23,6 +24,7 @@ def stringify_duration(duration):
 
 
 def stringify_flight_info(number, flight_info):
+    """Visually complex, but makes output beautiful"""
     duration_string = stringify_duration(flight_info.duration)
     raw_str = ('=' * 80 +
                '\n| {num} | {flight_number}, {company}' +
@@ -32,14 +34,15 @@ def stringify_flight_info(number, flight_info):
                '\n| {from_city}, {from_airport}' +
                ' ' * 17 + '{to_city}, {to_airport}' + ' ' * (
                        56 - len(flight_info.start.name) -
-                       len(flight_info.start.city) - len(flight_info.end.name) -
+                       len(flight_info.start.city) -
+                       len(flight_info.end.name) -
                        len(flight_info.end.city)) + '|' +
                '\n| ({from_airport_code})' +
                ' ' * (len(flight_info.start.name) +
                       len(flight_info.start.city) - 2) +
                '  ==========>   ({to_airport_code})' +
-               ' '*(53-len(flight_info.start.city)
-                    - len(flight_info.start.name)) + '|' +
+               ' '*(53-len(flight_info.start.city) -
+                    len(flight_info.start.name)) + '|' +
                '\n| {depart_datetime}' +
                ' ' * (len(flight_info.start.name) +
                       len(flight_info.start.city) + 2) +
@@ -48,8 +51,8 @@ def stringify_flight_info(number, flight_info):
                '|' +
                '\n|' + '-'*78 + '|' +
                '\n| {aircraft_type} | Длительность рейса: {duration}' +
-               ' '*(54 - len(flight_info.aircraft_type)
-                    - len(duration_string)) + '|')
+               ' '*(54 - len(flight_info.aircraft_type) -
+                    len(duration_string)) + '|')
     return raw_str.format(
         num=number,
         flight_number=flight_info.number,
@@ -68,6 +71,7 @@ def stringify_flight_info(number, flight_info):
 
 
 def get_timezone_and_datetime(date_string):
+    """Parse 2020-06-25T07:30:00+03:00 string"""
     raw_data = [x for x in datetime_regex.findall(date_string)[0]]
     datetime = '{day}/{month}/{year} {time}'.format(
         day=raw_data[2], month=raw_data[1], year=raw_data[0], time=raw_data[3])
@@ -81,6 +85,7 @@ def get_timezone_and_datetime(date_string):
 
 
 def print_flights(flights, start_code, end_code):
+    """Parse JSON and print flights info"""
     print('_' * 80)
 
     if len(flights) == 0:
@@ -122,7 +127,7 @@ def print_flights(flights, start_code, end_code):
 
 
 def load_data(start_code, end_code, date):
-    """Находит номер атономной системы по IP с помощью RIPEstat"""
+    """Fetch data in JSON"""
     print('Ищем рейсы...\r', end='')
 
     link = ('https://api.rasp.yandex.net/v3.0/search/?from={start_code}' +
@@ -135,7 +140,7 @@ def load_data(start_code, end_code, date):
         with urllib.request.urlopen(link) as page:
             data = json.loads(page.read().decode('utf-8'))
     except (URLError, HTTPError) as err:
-        print('Маршрут не найден.\n'+
+        print('Маршрут не найден.\n' +
               'Проверьте введенные данные и подключение к интернету')
         return None
 
@@ -143,11 +148,13 @@ def load_data(start_code, end_code, date):
 
 
 def print_help():
+    """-h, --help handler"""
     with open('help.txt', 'r', encoding='utf-8') as file:
         print(file.read())
 
 
 def main(args):
+    """Args handler"""
     if len(args) > 1 or len(args) == 1 and args[0] not in ['-h', '--help']:
         print('Неверный аргумент, используйте -h или --help для справки')
         return
