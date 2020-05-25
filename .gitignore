@@ -123,3 +123,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.idea/vcs.xml
+.idea/vcs.xml
+.idea/codeStyles/codeStyleConfig.xml
+.idea/workspace.xml
+sandbox.json
+sandbox.py
+sandbox.txt
+sandbox.py
